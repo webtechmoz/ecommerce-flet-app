@@ -1,0 +1,18 @@
+# Ignorar diretórios
+__pycache__/
+storage/
+
+# Ignorar arquivos de configuração sensíveis
+.env
+config.json
+
+# Ignorar pastas de build
+build/
+dist/
+
+# Ignorar logs
+*.log
+
+# Ignorar arquivos temporários
+*.tmp
+*.pyc
