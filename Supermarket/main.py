@@ -1,15 +1,33 @@
 from views.home import ft, Home
+from views.login import Login
+from views.register import Register
+
 
 def main(page: ft.Page):
     page.title = 'Supermercado'
+    page.route = '/'
 
-    home = Home(page=page)
+    page.theme = ft.Theme(
+        page_transitions=ft.PageTransitionsTheme(
+            android=ft.PageTransitionTheme.NONE,
+            ios=ft.PageTransitionTheme.NONE,
+            macos=ft.PageTransitionTheme.NONE,
+            windows=ft.PageTransitionTheme.NONE,
+            linux=ft.PageTransitionTheme.NONE
+        )
+    )
 
     def router(route):
         page.views.clear()
 
         if page.route == '/':
-            page.views.append(home)
+            page.views.append(Home(page=page))
+        
+        elif page.route == '/login':
+            page.views.append(Login(page=page))
+        
+        elif page.route == '/register':
+            page.views.append(Register(page=page))
         
         page.update()
     

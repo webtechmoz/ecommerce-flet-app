@@ -1,5 +1,19 @@
 import flet as ft
 
+class ProductData:
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        price: float,
+        image: str
+    ):
+        self.name = name
+        self.description = description
+        self.price = price
+        self.image = image
+        
+
 class Text(ft.Text):
     def __init__(
         self,
@@ -20,6 +34,45 @@ class Text(ft.Text):
         self.text_align = text_align
         self.no_wrap = no_wrap
 
+class TextField(ft.TextField):
+    def __init__(
+        self,
+        hint_text: str,
+        color: ft.Colors = ft.Colors.BLACK,
+        bgcolor: ft.Colors = ft.Colors.with_opacity(0.05, 'black'),
+        border_radius: float = 2,
+        border: ft.InputBorder = None,
+        border_width: float = 1,
+        border_color: ft.Colors = ft.Colors.with_opacity(0.05, 'black'),
+        password: bool = False,
+        icon: ft.Icons = None,
+        autofocus: bool = False,
+    ):
+        super().__init__()
+        self.hint_text = hint_text
+        self.bgcolor = bgcolor
+        self.autofocus = autofocus
+        self.password = password
+        self.prefix_icon = icon
+        self.border_radius = border_radius
+        self.border = border
+        self.border_color = border_color
+        self.border_width = border_width
+        self.focused_bgcolor = self.bgcolor
+        self.text_vertical_align = 0.40
+        self.focused_border_color = self.border_color
+        self.focused_border_width = border_width
+        self.hint_style = ft.TextStyle(
+            size=14,
+            color=ft.Colors.with_opacity(0.3, color),
+            weight='bold'
+        )
+        self.text_style = ft.TextStyle(
+            size=14,
+            color=ft.Colors.with_opacity(0.8, color),
+            weight='bold'
+        )
+
 class Button(ft.Container):
     def __init__(
         self,
@@ -31,22 +84,28 @@ class Button(ft.Container):
         on_click: ft.ControlEvent = None,
         border_radius: float = 2,
         height: float = 40,
-        col: dict[str, float] = {'xs': 12}
+        width: float = None,
+        col: dict[str, float] = {'xs': 12},
+        alignment: ft.MainAxisAlignment = ft.MainAxisAlignment.START,
+        on_hover: ft.HoverEvent = None,
+        padding: ft.padding = None
     ):
         super().__init__()
         self.page = page
         self.col = col
+        self.width = width
+        self.padding = padding
         self.border_radius = border_radius
         self.height = height
         self.on_click = on_click
-        self.on_hover = self.hover
+        self.on_hover = self.hover if not on_hover else on_hover
         self.bgcolor = bgcolor
         self.bcolor = bgcolor
         self.content = ft.Row(
             controls=[
                 ft.Icon(
                     name=icon,
-                    size=25,
+                    size=25 if icon else 0,
                     color=color
                 ),
                 Text(
@@ -55,7 +114,8 @@ class Button(ft.Container):
                     selectable=False
                 )
             ],
-            spacing=2
+            spacing=2,
+            alignment=alignment
         )
     
     def hover(self, e: ft.HoverEvent):
@@ -75,7 +135,7 @@ class ProductCard(ft.Container):
     def __init__(
         self,
         page: ft.Page,
-        data: dict[str, str]
+        data: ProductData
     ):
         super().__init__()
         self.page = page
@@ -93,15 +153,15 @@ class ProductCard(ft.Container):
                                 ft.Container(
                                     border_radius=2,
                                     image=ft.DecorationImage(
-                                        src='no_product.jpg' if self.data['image'] == None else self.data['image'],
+                                        src='no_product.jpg' if self.data.image == None else self.data.image,
                                         fit=ft.ImageFit.COVER,
-                                        opacity=0.10 if self.data['image'] == None else 1
+                                        opacity=0.10 if self.data.image == None else 1
                                     ),
                                     height=150,
                                     bgcolor=ft.Colors.with_opacity(0.05, 'black')
                                 ),
                                 Text(
-                                    value=self.data['name'].capitalize(),
+                                    value=self.data.name.capitalize(),
                                     color=ft.Colors.with_opacity(0.8, 'black'),
                                     no_wrap=False,
                                     text_align=ft.TextAlign.CENTER
@@ -113,7 +173,7 @@ class ProductCard(ft.Container):
                         ft.Row(
                             controls=[
                                 Text(
-                                    value=f'MT {format(float(self.data['price']), ",.2f")}',
+                                    value=f'MT {format(float(self.data.price), ",.2f")}',
                                     color=ft.Colors.BLUE,
                                     weight='bold'
                                 ),
@@ -122,7 +182,7 @@ class ProductCard(ft.Container):
                                     icon=ft.Icons.SHOPPING_CART,
                                     color=ft.Colors.BLUE,
                                     bgcolor=None,
-                                    on_click=lambda _: print(f'Comprar produto x..')
+                                    on_click=lambda _: print(f'Comprar {self.data.name} por MT {self.data.price}')
                                 )
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN
@@ -135,7 +195,8 @@ class ProductCard(ft.Container):
 class Appbar(ft.AppBar):
     def __init__(
         self,
-        page: ft.Page
+        page: ft.Page,
+        actions: list[ft.Control] = None
     ):
         super().__init__()
         self.page = page
@@ -157,16 +218,4 @@ class Appbar(ft.AppBar):
             spacing=2
         )
         self.title_spacing = 4
-        self.actions = [
-            ft.Container(
-                content=Button(
-                    page=page,
-                    text='Login',
-                    bgcolor=None,
-                    on_click=lambda _: print('Faça login daqui ...')
-                ),
-                padding=ft.padding.only(
-                    right=10
-                )
-            )
-        ]
+        self.actions = actions
