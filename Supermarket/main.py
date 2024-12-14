@@ -3,6 +3,7 @@ from views.login import Login
 from views.register import Register
 from views.logout import LogOut
 from views.shopping import ShoppingCart
+from views.checkout import CheckOut
 
 def main(page: ft.Page):
     page.title = 'Supermercado'
@@ -36,10 +37,13 @@ def main(page: ft.Page):
         elif page.route == '/logout':
             page.views.append(LogOut(page=page))
         
-        elif '/cart' in page.route[-5::]:
+        elif '/cart' in page.route:
             if page.data:
                 if page.route == f'/{page.data['user']}/cart':
                     page.views.append(ShoppingCart(page=page))
+                
+                elif page.route == f'/{page.data['user']}/cart/checkout':
+                    page.views.append(CheckOut(page=page))
                 
                 else:
                     page.go('/login')

@@ -37,7 +37,8 @@ class Text(ft.Text):
 class TextField(ft.TextField):
     def __init__(
         self,
-        hint_text: str,
+        hint_text: str = None,
+        label: str = None,
         color: ft.Colors = ft.Colors.BLACK,
         bgcolor: ft.Colors = ft.Colors.with_opacity(0.05, 'black'),
         border_radius: float = 2,
@@ -47,21 +48,32 @@ class TextField(ft.TextField):
         password: bool = False,
         icon: ft.Icons = None,
         autofocus: bool = False,
+        col: dict[str, float] = None,
+        height: float = None,
     ):
         super().__init__()
         self.hint_text = hint_text
+        self.label = label
         self.bgcolor = bgcolor
+        self.col = col
+        self.height = height
         self.autofocus = autofocus
         self.password = password
         self.prefix_icon = icon
         self.border_radius = border_radius
         self.border = border
         self.border_color = border_color
+        self.hover_color = self.bgcolor
         self.border_width = border_width
         self.focused_bgcolor = self.bgcolor
         self.text_vertical_align = 0.40
         self.focused_border_color = self.border_color
         self.focused_border_width = border_width
+        self.label_style = ft.TextStyle(
+            size=14,
+            color=ft.Colors.with_opacity(0.3, color),
+            weight='bold'
+        )
         self.hint_style = ft.TextStyle(
             size=14,
             color=ft.Colors.with_opacity(0.3, color),
@@ -109,7 +121,7 @@ class Button(ft.Container):
                     size=icon_size if icon else 0,
                     color=color
                 ),
-                Text(
+                text_button := Text(
                     value=text,
                     color=color,
                     selectable=False
@@ -118,6 +130,8 @@ class Button(ft.Container):
             spacing=2,
             alignment=alignment
         )
+
+        self.text_button = text_button
     
     def hover(self, e: ft.HoverEvent):
         if e.data == 'true':

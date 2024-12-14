@@ -34,10 +34,34 @@ class ShoppingCart(ft.View):
     def add_to_cart(self):
         keys = self.page.data.keys()
 
+        # Adicionar o botão de pagamentos no appbar
+        self.appbar.actions.append(
+            ft.Container(
+                content=Button(
+                    page=self.page,
+                    icon=ft.Icons.WALLET,
+                    text=f'MT {format(0, ",.2f")}',
+                    bgcolor=ft.Colors.with_opacity(0.08, 'black'),
+                    padding=ft.padding.all(6),
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    height=35,
+                    border_radius=35,
+                    icon_size=20,
+                    on_click=lambda _: self.page.go(f'/{self.page.data['user']}/cart/checkout')
+                ),
+                padding=ft.padding.only(
+                    right=6
+                )
+            )
+        )
+
+        self.appbar.actions[0], self.appbar.actions[1] = self.appbar.actions[1], self.appbar.actions[0]
+
         if 'products' in keys:
             products: list[ProductData] = self.page.data['products']
 
             if products:
+                total = 0
 
                 for product in products:
                     self.controls[0].controls[0].controls.append(
@@ -46,6 +70,10 @@ class ShoppingCart(ft.View):
                             data=product
                         )
                     )
+
+                    total += product.price
+                
+                self.appbar.actions[0].content.text_button.value = f'MT {format(total, ",.2f")}'
             
             else:
                 self.controls[0].controls[0].controls.append(
@@ -191,6 +219,8 @@ class ProductCart(ft.Container):
         self.parent.controls.remove(self)
         self.page.data['products'].remove(self.data)
 
+        self.total_price()
+
         if len(self.parent.controls) < 1:
             self.page.views[-1].controls[0].controls[0].controls.append(
                 ShoppingCartEmpty(
@@ -206,6 +236,8 @@ class ProductCart(ft.Container):
         self.text_qtd.value = qtd + 1
         self.text_price.value = f'MT {format(self.data.price * float(self.text_qtd.value), ",.2f")}'
 
+        self.total_price()
+
         e.page.update()
     
     def remove_qtd(self, e: ft.ControlEvent):
@@ -215,4 +247,15 @@ class ProductCart(ft.Container):
             self.text_qtd.value = qtd - 1
             self.text_price.value = f'MT {format(self.data.price * float(self.text_qtd.value), ",.2f")}'
 
+        self.total_price()
+
         e.page.update()
+    
+    def total_price(self):
+        products: list[ProductCart] = self.parent.controls
+        total = 0
+
+        for product in products:
+            total += int(product.text_qtd.value) * product.data.price
+        
+        self.page.views[-1].appbar.actions[0].content.text_button.value = f'MT {format(total, ",.2f")}'
